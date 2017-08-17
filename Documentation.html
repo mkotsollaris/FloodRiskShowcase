@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<!--Author: Menelaos Kotsollaris
+    Email: menelaos@mkotsollaris.com
+    All rights reserved ©-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="initializeComponents.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="pictures/unb_gge.gif">
+    <title>Flood Risk Evaluator API</title>
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="css/blog.css" rel="stylesheet">
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]>
+    <script src="js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="js/ie-emulation-modes-warning.js"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+    <![endif]-->
+</head>
+<body>
+<div class="blog-masthead">
+    <div class="container">
+        <nav class="blog-nav">
+            <a class="blog-nav-item" href="Index.html">Home</a>
+            <a class="blog-nav-item active" href="Documentation.html">About</a>
+            <a class="blog-nav-item" href="Contact.html">Contact</a>
+        </nav>
+    </div>
+</div>
+<div class="container">
+    <br>
+    <div class="row">
+        <div class="col-sm-8 blog-main">
+            <div class="blog-post">
+                <h1 class="blog-post-title">Flood Risk Evaluator API: Documentation</h1>
+                <div class="blog-post">
+                    <br>
+                    <br>
+                    *Water Depth is in feet.
+                    <br>
+                    *Water Percentage: Water percentage must sum to 100 and must always be inserted in the URL. If the total WP number
+                    exceeds the 100, then there's an error popup. Keep in mind that whatever the water percentage is for
+                    one unit, the number by default will be 100 (as logically expected).
+                    <br>
+                    <br>
+                    Below is a Request Example:
+                    <br>
+                    <br>
+                    <pre><code><h4>Request=GetDamage&format=xmL&id=1&BC=1&dc=105&bo=RES1&yb=1987&st=1&ft=2&ba=0&ga=0&wd=3.5&wp=79</h4></code></pre>
+                    The value of the Request key is GetDamage, the wanted format is XML, the ID equals to 1 and so on. A
+                    note here would be that
+                    our URL manages the URL as case insensitive; which makes it more “hackable” and easy to manipulate,
+                    although a case-sensitive
+                    URL would make sense in some other applications. A more complex request:
+                    <pre><code><h4>RequestRequest=GetDamage&format=xmL&id=1&BC=1&dc=105&bo=RES1&yb=1987&st=1&ft=2&ba=0&ga=0&wd=3.5&wp=79&id=2&BC=1&bq=Average&bo=RES1&yb=2000&st=1&ft=2&ba=0&ga=0&wd=3.1&wp=100</h4></code></pre>
+                    As we can see here, we can declare multiple buildings as long as we give different ID of the type of
+                    building. If a REST
+                    application feels logic & normal even for the end user, then it can be said that it successfully
+                    applies the RESTful principles.
+                    Usually, RESTful URI’s can be described by a Regular Expression.
+                    <br>
+                    <br>
+                    <h4>Pseudo REGEX:</h4>
+                    <pre><code><h4>Request=[]XML|JSON\&[ID=[0-9]&BC=[0-9]&DC=[0-9]&BO=BO_TABLE_VARS&YB=[0-9]&ST=[0-9]&FT=[0-9]&BA=[0|1|2]&GA=[0|1]&WD=[0-9]&WP=[0-100]&[BQ=BQ_TABLE_VARS]0-1&BV=[0-9]0-1]+</h4></code></pre>
+                    <br>
+                    <br>
+                    We can also view our REST request as a tree:<br><br><br>
+                    <img src="pictures/doc1.png"><br><br>
+                    As we can see, our request is split to several parts that altogether express our initial request.
+                    Note that this isn't the request
+                    body -- it's just a URL. This URL is sent to the server using a simpler GET request, and the HTTP
+                    reply is the raw result data --
+                    not embedded inside anything, just the data you need in a way you can directly use.
+                    <br><br>
+                </div>
+            </div>
+        </div>
+
+        <div id="sideBarID">
+        </div><!-- /.blog-sidebar -->
+    </div><!-- /.row -->
+</div><!-- /.container -->
+<footer class="blog-footer" id="footerID"></footer>
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="dist/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="js/ie10-viewport-bug-workaround.js"></script>
+</body>
+</html>

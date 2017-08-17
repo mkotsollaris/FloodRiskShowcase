@@ -1,0 +1,750 @@
+<!-- FIXME throw proper errors on user-input + ids + add form button -->
+<!DOCTYPE html>
+<!--
+    Author: Menelaos Kotsollaris
+    Email: menelaos@mkotsollaris.com
+    All rights reserved ©-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="initializeComponents.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="pictures/unb_gge.gif">
+    <meta name="description" content="RESTful API, Flood API">
+    <meta name="author" content="Menelaos Kotsollaris">
+    <title>Flood Risk Evaluator API</title>
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="css/blog.css" rel="stylesheet">
+    <script src="js/ie-emulation-modes-warning.js"></script>
+    <link href="css/bootstrap-slider.css" rel="stylesheet">
+    <script>
+        /** Main counter of the requests */
+        var idCounter = 0;
+        /** The counter of the wp and wd objects */
+        var aggCounter = 0;
+        const domainURL = "http://gaia.gge.unb.ca/wmaps/students/menelaos/";
+        function appendSubTable()
+        {
+            //alert("appendSubTable");
+            idCounter++;
+            $('<table id="subTable' + idCounter + '"><tr><td</td></tr></table>').appendTo('#coreTable');
+            $('#subTable1').append(
+                getBuildingIDRow(), getBuildingCountRow(), getBuildingOccupancyRow(), getFoundationTypeRow(),
+                getYearBuiltRow(), getStoriesRow(), getBasementRow(), getGarageRow(), getWaterDepthRow(), getBuildingQualityRow());
+        }
+        function appendAggSubTable()
+        {
+            //alert("appendAggSubTable");
+            //$('#mainTable').append(getAggRow());
+            idCounter++;
+            $('<table id="subTable' + idCounter + '"><tr><td</td></tr></table>').appendTo('#coreTable');
+            $('#subTable1').append(
+                getBuildingIDRow(), getBuildingCountRow(), getBuildingOccupancyRow(),
+                getFoundationTypeRow(), getYearBuiltRow(), getStoriesRow(), getBasementRow(), getGarageRow(),
+                getBuildingQualityRow());
+        }
+        function getAggRow()
+        {
+            return '<tr id="aggRow' + aggCounter + '"><td>Water Percentage</td> ' +
+                '<td><label> <div class="form-group">' +
+                '<input onchange="onRequestChange(this);" value="10" id="waterPercentage' +
+                aggCounter +
+                '" class="form-control"' +
+                'type="number" min="0" max="100"> </div></label> ' +
+                '</td>' +
+                '<td>Water Depth</td>' +
+                '<td><label> <div class="form-group">' +
+                '<input onchange="onRequestChange(this);" value="2" id="waterDepth' +
+                aggCounter +
+                '" class="form-control"' +
+                'type="number" min="0" max="23"> </div></label></td> ' +
+                '</tr>';
+        }
+        function getIncrementalID()
+        {
+            return idCounter;
+        }
+        function getBuildingOccupancyRow()
+        {
+            return '<tr> <td>Building Occupancy</td> <td><label> <div class="form-group"> ' +
+                '<select onchange="onRequestChange(this);" ' +
+                'id="buildingOccupancy' + getIncrementalID() + '" class="form-control"> ' +
+                '<option value="AGR1">AGRICULTURE (AGR1)</option> ' +
+                '<option value="COM1">RETAIL TRADE (COM1)</option>' +
+                '<option value="COM2">WHOLESALE TRADE (COM2)</option>' +
+                '<option value="COM3">PERSONAL AND REPAIR (COM3)</option>' +
+                '<option value="COM4">PROFESSIONAL/TECHNICAL (COM4)</option>' +
+                '<option value="COM5">BANK (COM5)</option>' +
+                '<option value="COM6">HOSPITAL (COM6)</option>' +
+                '<option value="COM7">MEDICAL OFFICE (COM7)</option>' +
+                '<option value="COM8">ENTERTAINMENT (COM8)</option>' +
+                '<option value="COM9">THEATRE (COM9)</option>' +
+                '<option value="COM10">PARKING LOT (COM10)</option>' +
+                '<option value="EDU1">GRADE SCHOOL (EDU1)</option>' +
+                '<option value="EDU2">UNIVERSITY (EDU2)</option>' +
+                '<option value="GOV1">GENERAL SERVICES (GOV1)</option>' +
+                '<option value="GOV1">EMERGENCY RESPONSE (GOV2)</option>' +
+                '<option value="IND1">HEAVY INDUSTRY (IND1)</option>' +
+                '<option value="IND2">LIGHT INDUSTRY (IND2)</option>' +
+                '<option value="IND3">FOOD/DRUG/CHEMIAL IND (IND3)</option>' +
+                '<option value="IND4">METALS, MINERAL PROCESSING (IND4)</option>' +
+                '<option value="IND5">HIGH TECHNOLOGY (IND5)</option>' +
+                '<option value="IND6">CONSTRUCTION (IND6)</option>' +
+                '<option value="REL1">CHURCHES (REL1)</option>' +
+                '<option value="RES1" selected>SINGLE FAMILY DWELLING (RES1)</option>' +
+                '<option value="RES2">MANUFACTURED HOUSING (RES2)</option>' +
+                '<option value="RES3A">DUPLEX (RES3A)</option>' +
+                '<option value="RES3B">TRIPLEX/QUAD (RES3B)</option>' +
+                '<option value="RES3C">MULTI-DWELLINGS, 5-9 (RES3C)</option>' +
+                '<option value="RES3D">MULTI-DWELLINGS, 10-19 (RES3D)</option>' +
+                '<option value="RES3E">MULTI-DWELLINGS, 20 - 49 (RES3E)</option>' +
+                '<option value="RES3F">MULTI-DWELLINGS, 50 + (RES3F)</option>' +
+                '<option value="RES4">TEMPORARY LODGING (RES4)</option>' +
+                '<option value="RES5">INSTITUTIONAL (RES5)</option>' +
+                '<option value="RES6">NURSING HOME (RES6)</option>' +
+                '</select></div></div>' +
+                '</td></tr>';
+        }
+        function getBuildingIDRow()
+        {
+            return '<tr><td>Building ID</td> <td onchange="onRequestChange(this);" align="center" id="buildingID' +
+                getIncrementalID() +
+                '"><label>' + +getIncrementalID() +
+                '</label></td></tr>';
+        }
+        function getBuildingCountRow()
+        {
+            return '<tr><td>Building Count</td> <td><label> <div class="form-group">' +
+                '<input class="form-control" type="number" value="1" min="1" id="buildingCount' +
+                getIncrementalID() +
+                '"' +
+                ' onchange="onRequestChange(this);"></div></label></td></tr>';
+        }
+        function getYearBuiltRow()
+        {
+            return '<tr>' +
+                '<td>Year Built</td>' +
+                '<td><label>' +
+                '<div class="form-group">' +
+                '<input onchange="onRequestChange(this);" class="form-control" value="1987" id="yearBuilt' +
+                getIncrementalID() +
+                '" width="100%" style="display:block;" ' +
+                'min="1800" max="' +
+                new Date().getFullYear() +
+                '"' +
+                'type="number"></div></label>' +
+                '</td></tr>';
+        }
+        function getBasementRow()
+        {
+            return '<tr><td>Basement</td><td><label><select onchange="onRequestChange(this);" id="basement' +
+                getIncrementalID() +
+                '"  class="form-control">' +
+                '<option value="0" selected>None</option>' +
+                '<option value="1">Yes, unfinished</option>' +
+                '<option value="2">Yes, finished</option>' +
+                '</select></label>' +
+                '</td></tr>';
+        }
+        function getStoriesRow()
+        {
+            return '<tr> <td>Stories</td> <td> <label>' +
+                '<select onchange="onRequestChange(this);" ' +
+                'id="stories' + getIncrementalID() + '" class="form-control">' +
+                '<option value="1">1 story ( or Low-Rise)</option>' +
+                '<option value="2">2 stories (or Mid-Rise)</option>' +
+                '<option value="3">3+ stories (or High-Rise)</option>' +
+                '<option value="S">Split-Level</option>' +
+                '</select></label>' +
+                '</td></tr>';
+        }
+        function getGarageRow()
+        {
+            return '<tr><td>Garage</td>' +
+                '<td><label>' +
+                '<select id="garage' + getIncrementalID() + '" ' +
+                'onchange="onRequestChange(this);" class="form-control">' +
+                '<option value="0" selected>None</option>' +
+                '<option value="1">1-car</option>' +
+                '<option value="2">2-car</option>' +
+                '<option value="3">3-car</option>' +
+                '<option value="4">Covered Carport</option>' +
+                '</select></label>' +
+                '</td></tr>';
+        }
+        function getWaterDepthRow()
+        {
+            return '<tr> <td>Water Depth</td>' +
+                '<td><label> <div class="form-group">' +
+                '<input onchange="onRequestChange(this);" value="2" id="waterDepth' +
+                getIncrementalID() +
+                '" class="form-control"' +
+                'type="number" min="0" max="23"> </div></label> ' +
+                '</td>' +
+                '</tr>';
+        }
+        function getWaterPercentageRow()
+        {
+            return '<tr> <td>Water Percentage</td> ' +
+                '<td><label> <div class="form-group">' +
+                '<input onchange="onRequestChange(this);" value="10" id="waterPercentage' +
+                getIncrementalID() +
+                '" class="form-control"' +
+                'type="number" min="0" max="100"> </div></label> ' +
+                '</td>' +
+                '</tr>';
+        }
+        function getFoundationTypeRow()
+        {
+            return '<tr> <td>Foundation Type</td> <td><label> ' +
+                '<div class="form-group">' +
+                '<select onchange="onRequestChange(this);" id="foundationType' +
+                getIncrementalID() + '" class="form-control">' +
+                '<option value="0">0</option>' +
+                '<option value="1">Slab on Grade</option>' +
+                '<option value="2" selected>Fill</option>' +
+                '<option value="3">Crawl Space</option>' +
+                '<option value="4">Basement/Garden</option>' +
+                '<option value="5">Pier</option>' +
+                '<option value="6">Solid Wall</option>' +
+                '<option value="7">Pile</option>' +
+                '</select></div></label>' +
+                '</td></tr>';
+        }
+        function getBuildingQualityRow()
+        {
+            return '<tr><td>Building Quality</td><td><label>' +
+                '<div class="form-group">' +
+                '<select onchange="onRequestChange(this);" id="buildingQuality' +
+                getIncrementalID() +
+                '" class="form-control">' +
+                '<option value="Average">Average</option>' +
+                '<option value="Economy">Economy</option>' +
+                '<option value="Custom">Custom</option>' +
+                '<option value="Luxury">Luxury</option>' +
+                '</select></div></label>' +
+                '</td></tr>';
+        }
+        function getBuildingValuationRow()
+        {
+            return '<tr> <td>Building Valuation</td><td><label>' +
+                '<div class="form-group">' +
+                '<input onchange="onRequestChange(this);" id="buildingValuation' +
+                getIncrementalID() +
+                '" class="form-control" type="number" min="0">' +
+                '</div></label>' +
+                '</td></tr>';
+        }
+        /**TODO: In case of a big URL, split it as it's mentioned in the DOCS
+         *
+         * Returns the string that should be output in the Generated Request area.
+         *
+         * */
+        function generateRequestString(requestArray)
+        {
+            var wantedURLArray = [];
+            var URLString = "http://gaia.gge.unb.ca/wmaps/students/menelaos/FloodRiskEvaluation?";
+            //alert(requestArray.length);
+            for (var i = 0; i < requestArray.length; i++)
+            {
+                //alert(requestArray[i].getString());
+                URLString += requestArray[i].getString();
+                //URLString = {};//disconnects the reference from the array
+                //URLString = "http://gaia.gge.unb.ca/wmaps/students/menelaos/FloodRiskEvaluation?";
+                //wantedURLArray.push(URLString);
+
+            }
+            wantedURLArray.push(URLString);
+            //alert("bgeno");
+            return wantedURLArray;
+        }
+
+        /**Creates the clickable URL that navigates the user through the (backend) API*/
+        function onComputeClick()
+        {
+            var request = $('#requestID').val();
+            //alert(request);
+            var wantedURLArray;
+            if (request == "GetCapabilities")
+            {
+                var format = $('#formatID').val();
+                var domainURL = "http://gaia.gge.unb.ca/wmaps/students/menelaos/FloodRiskEvaluation?request=getCapabilities&format=" +
+                    format;
+                wantedURLArray = [domainURL];
+            }
+            else if (request == "GetDamage")
+            {
+                var requestArray = getSimpleRequest();
+                wantedURLArray = generateRequestString(requestArray);
+            }
+            else
+            {
+                var requestArray = getAggRequest();
+                wantedURLArray = generateRequestString(requestArray);
+                /*for(var l=0;l<wantedURLArray.length;l++)
+                 {
+                 alert(wantedURLArray[l]);
+                 }*/
+                //alert(wantedURLArray.length);
+            }
+            $("#resultHeader div").remove();
+            for (var i = 0; i < wantedURLArray.length; i++)
+            {
+                (function (e)
+                {
+                    $("#resultHeader").append(
+                        "<div id='wantedURL" +
+                        e +
+                        "'>Generated Request " +
+                        (e + 1) +
+                        "<br><pre><code id='URL" +
+                        e +
+                        "'>" +
+                        wantedURLArray[e] +
+                        "</code></pre></br></div>");
+                    $('#requestID').on(
+                        'change', function ()
+                        {
+                            //alert(this.value); // or $(this).val()
+                        });
+                    $('#wantedURL' + e).click(
+                        function ()
+                        {
+                            window.open($("#URL" + e).text(), "_blank");
+                        }).hover(
+                        function ()
+                        {
+                            $(this).css('cursor', 'pointer');
+                        }, function ()
+                        {
+                            $(this).css('cursor', 'auto');
+                        });
+
+                })(i);
+            }
+        }
+        /**
+         * Returns an array of requests.
+         *
+         * @return: The array with Request objects.
+         * */
+        function getSimpleRequest()
+        {
+            var requestArray = [];
+            var format = $('#formatID').val();
+            requestArray.push(
+                new Request("GetDamage", format, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+            for (var i = 1; i <= idCounter; i++)
+            {
+                var id = i;
+                var bc = $('#buildingCount' + i).val();
+                var bo = $('#buildingOccupancy' + i).val();
+                var ft = $('#foundationType' + i).val();
+                var yb = $('#yearBuilt' + i).val();
+                var st = $('#stories' + i).val();
+                var ba = $('#basement' + i).val();
+                var ga = $('#garage' + i).val();
+                var wd = $('#waterDepth' + i).val();
+                var wp = $('#waterPercentage' + i).val();
+                var bq = $('#buildingQuality' + i).val();
+                var subRequest = new Request(null, null, null, null, id, bc, bo, ft, yb, st, ba, ga, wd, wp, bq);
+                requestArray.push(subRequest);
+            }
+            return requestArray;
+        }
+
+        /**
+         * Returns an array of Aggregate requests.
+         *
+         * @return: The array with Request objects.
+         * */
+        function getAggRequest()
+        {
+            var requestArray = [];
+            var format = $('#formatID').val();
+            var wpArray = [];
+            var wdArray = [];
+            for (var k = 1; k <= aggCounter; k++)
+            {
+                var wp = $('#waterPercentage' + k).val();
+                var wd = $('#waterDepth' + k).val();
+                wpArray[k - 1] = wp;
+                wdArray[k - 1] = wd;
+            }
+            subRequest = new Request("GetAggDamage", format, wpArray, wdArray, null, null, null, null, null, null, null,
+                null, null, null, null);
+            //alert(subRequest.getString());
+            requestArray.push(subRequest);
+            //alert("idCounter: " + idCounter);
+            for (var i = 1; i <= idCounter; i++)
+            {
+                //alert("i: " + i);
+                var id = i;
+                var bc = $('#buildingCount' + i).val();
+                var bo = $('#buildingOccupancy' + i).val();
+                var ft = $('#foundationType' + i).val();
+                var yb = $('#yearBuilt' + i).val();
+                var st = $('#stories' + i).val();
+                var ba = $('#basement' + i).val();
+                var ga = $('#garage' + i).val();
+                var bq = $('#buildingQuality' + i).val();
+                var subRequest;
+                subRequest = new Request(null, null, null, null, id, bc, bo, ft, yb, st, ba, ga, null, null, bq);
+                requestArray.push(subRequest);
+            }
+            //alert("kobleee");
+            return requestArray;
+        }
+
+        /**
+         * Request 'Class'
+         *
+         * @param request
+         * @param format
+         * @param extraWPArray: the array holding the WP value
+         * @param extraWDArray
+         * @param id
+         * @param bc
+         * @param bo
+         * @param ft
+         * @param yb
+         * @param st
+         * @param ba
+         * @param ga
+         * @param wd
+         * @param wp
+         * @param bq
+         * @param bv
+         * */
+        function Request(request, format, extraWPArray, extraWDArray, id, bc, bo, ft, yb, st, ba, ga, wd, wp, bq, bv)
+        {
+            this.request = request;
+            this.format = format;
+            this.extraWP = extraWPArray;
+            this.extraWD = extraWDArray;
+            this.id = id;
+            this.bc = bc;
+            this.bo = bo;
+            this.ft = ft;
+            this.yb = yb;
+            this.st = st;
+            this.ba = ba;
+            this.ga = ga;
+            this.wd = wd;
+            this.wp = wp;
+            this.bq = bq;
+            this.bv = bv;
+            this.getString = function ()
+            {
+                var wantedString = "";
+                if (this.request != undefined || this.request != null)
+                {
+                    wantedString += "Request=" + this.request;
+                }
+                if ((this.extraWP != undefined || this.extraWP != null)
+                    && (this.extraWD != undefined || this.extraWD != null))
+                {
+                    for (var i = 0; i < extraWPArray.length; i++)
+                    {
+                        wantedString += "&WD=" + this.extraWD[i] + "&WP=" + this.extraWP[i];
+                    }
+                }
+                if (this.format != undefined || this.format != null)
+                {
+                    wantedString += "&";
+                    wantedString += "Format=" + this.format;
+                }
+                if (this.id != undefined || this.id != null)
+                {
+                    wantedString += "&";
+                    wantedString += "ID=" + this.id;
+                }
+                if (this.bc != undefined || this.bc != null)
+                {
+                    wantedString += "&";
+                    wantedString += "BC=" + this.bc;
+                }
+                if (this.bo != undefined || this.bo != null)
+                {
+                    wantedString += "&";
+                    wantedString += "BO=" + this.bo;
+                }
+                if (this.ft != undefined || this.ft != null)
+                {
+                    wantedString += "&";
+                    wantedString += "FT=" + this.ft;
+                }//
+                if (this.yb != undefined || this.yb != null)
+                {
+                    wantedString += "&";
+                    wantedString += "YB=" + this.yb;
+                }
+                if (this.st != undefined || this.st != null)
+                {
+                    wantedString += "&";
+                    wantedString += "ST=" + this.st;
+                }
+                if (this.ba != undefined || this.ba != null)
+                {
+                    wantedString += "&";
+                    wantedString += "BA=" + this.ba;
+                }
+                if (this.ga != undefined || this.ga != null)
+                {
+                    wantedString += "&";
+                    wantedString += "GA=" + this.ga;
+                }
+                if (this.wd != undefined || this.wd != null)
+                {
+                    //alert("mpika sto WD: " + this.wd);
+                    wantedString += "&";
+                    wantedString += "WD=" + this.wd;
+                }
+                if (this.wp != undefined || this.wp != null)
+                {
+                    //alert("mpika sto WP: " + this.wd);
+                    wantedString += "&";
+                    wantedString += "WP=" + this.wp;
+                }
+                if (this.bq != undefined || this.bq != null)
+                {
+                    wantedString += "&";
+                    wantedString += "BQ=" + this.bq;
+                }
+                if (this.bv != undefined || this.bv != null)
+                {
+                    wantedString += "&";
+                    wantedString += "BV=" + this.bv;
+                }
+                //alert("wantedString: "+wantedString);
+                return wantedString;
+            };
+        }
+        $(document).ready(
+            function ()
+            {
+                appendSubTable();
+                /**Appends a table inside coreTable*/
+                $("#addRequestBtn").click(
+                    function ()
+                    {
+                        var request = $('#requestID').val();
+                        if (request == "GetAggDamage")
+                        {
+                            appendAggSubTable();
+                            onComputeClick();
+                        }
+                        else
+                        {
+                            appendSubTable();
+                            onComputeClick();
+                        }
+                    });
+                $("#computeBtn").click(
+                    function ()
+                    {
+                        onComputeClick();
+                    });
+                $("#clearBtn").click(
+                    function ()
+                    {
+                        $("#coreTable tr").remove();
+                        $("#resultHeader div").remove();
+                        idCounter = 0;
+                    });
+                $("#addAggregationBtn").click(
+                    function ()
+                    {
+                        var aggregationBtnValue = $('#requestID').val();
+                        if (aggregationBtnValue != "GetAggDamage")
+                        {
+                            alert(
+                                "You can only add Aggegation Parameters while selecting the 'GetAggregationDamage' option");
+                            return;
+                        }
+                        aggCounter++;
+                        //alert("aggCounter: " + aggCounter);
+                        $('#mainTable').append(getAggRow());
+                        onRequestChange(this);
+                    });
+                $("#clearAggregationBtn").click(
+                    function ()
+                    {
+                        for (var i = 1; i <= aggCounter; i++)
+                        {
+                            var tempAggRow = "aggRow" + i;
+                            deleteRow(tempAggRow);
+                        }
+                        aggCounter = 0;
+                        onComputeClick();
+                    }
+                );
+            });
+        var onBuildingCountChange = function ()
+        {
+            x = $('#buildingCount1').val();
+            //alert(x);
+        };
+        var onBuildingOccupancyChange = function ()
+        {
+            alert("this.value: " + this.value);
+        };
+        var onWaterPercentageChange = function ()
+        {
+            alert("this.value: " + this.value);
+        };
+        var onBuildingQualityChange = function ()
+        {
+            alert("this.value: " + this.value);
+        };
+        var onBuildingValuationChange = function ()
+        {
+            alert("this.value: " + this.value);
+        };
+        window.onload = onComputeClick;
+    </script>
+</head>
+<body>
+<div class="blog-masthead">
+    <div class="container">
+        <nav class="blog-nav">
+            <a class="blog-nav-item active" href="Index.html">Home</a>
+            <a class="blog-nav-item" href="Documentation.html">About</a>
+            <a class="blog-nav-item" href="Contact.html">Contact</a>
+        </nav>
+    </div>
+</div>
+<div class="container">
+    <br>
+    <div class="row">
+        <div class="col-sm-8 blog-main">
+            <div class="blog-post">
+                <h1 class="blog-post-title">Flood Risk Evaluator API</h1>
+                <br>
+                <div class="container">
+                    <table id="mainTable" width="50%">
+                        <tr>
+                            <td>Request</td>
+                            <td>
+                                <label><select id="requestID" class="form-control" onchange="clearTable(this);">
+                                    <option value="GetCapabilities">GetCapabilities</option>
+                                    <option selected value="GetDamage">GetDamage</option>
+                                    <option value="GetAggDamage">GetAggregationDamage</option>
+                                </select>
+                                </label>
+                            </td>
+                            <td>Format</td>
+                            <td>
+                                <label>
+                                    <select id="formatID" class="form-control" onchange="onFormatChange(this);">
+                                        <option value="XML">XML</option>
+                                        <option value="JSON">JSON</option>
+                                    </select>
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
+                    <div>
+                        <br>
+                        <table align="middle" id="coreTable">
+                        </table>
+                        <div>
+                            <button disabled id="addRequestBtn" class="btn btn-secondary btn-lg">Add Building Type</button>
+                            <button id="clearBtn" class="btn btn-secondary btn-lg">Clear Building types</button>
+                            <button id="computeBtn" class="btn btn-secondary btn-lg">Compute</button>
+                            <button disabled id="addAggregationBtn" class="btn btn-secondary btn-lg">Add
+                                Aggregation
+                            </button>
+                            <button disabled id="clearAggregationBtn" class="btn btn-secondary btn-lg">
+                                Clear Aggregation
+                            </button>
+                        </div>
+                        <br>
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 col-sm-offset-1 blog-sidebar" align="center">
+            <div class="sidebar-module sidebar-module-inset">
+                <h4 id="resultHeader">
+                </h4>
+            </div>
+        </div><!-- /.blog-sidebar -->
+    </div><!-- /.row -->
+</div><!-- /.container -->
+<footer class="blog-footer" id="footerID"></footer>
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="dist/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="js/ie10-viewport-bug-workaround.js"></script>
+<script type="text/javascript">
+    /** Clears the Table - Runs each time the requests changes */
+    function clearTable(sel)
+    {
+        //document.getElementById('#mainTable').deleteRow(0);
+        //Clearing the table
+        $("#coreTable tr").remove();
+        $("#resultHeader div").remove();
+        //alert("aggCounter: "+aggCounter);
+        for (var i = 0; i < aggCounter; i++)
+        {
+            var wantedStr = "aggRow" + aggCounter;
+            deleteRow(wantedStr);
+        }
+        idCounter = 0;
+        aggCounter = 0;
+        onRequestChange(sel);
+    }
+
+    /** Deletes the rowID from the table */
+    function deleteRow(rowID)
+    {
+        var row = document.getElementById(rowID);
+        row.parentNode.removeChild(row);
+    }
+    function onRequestChange(sel)
+    {
+        if (sel.value == "GetCapabilities")
+        {
+            document.getElementById("addRequestBtn").disabled = true;
+            document.getElementById("addAggregationBtn").disabled = true;
+            document.getElementById("clearAggregationBtn").disabled = true;
+            onComputeClick();
+        }
+        else if (sel.value == "GetDamage")
+        {
+            document.getElementById("addRequestBtn").disabled = true;
+            document.getElementById("addAggregationBtn").disabled = true;
+            document.getElementById("clearAggregationBtn").disabled = true;
+            appendSubTable();
+            onComputeClick();
+        }
+        else if (sel.value == "GetAggDamage")
+        {
+            document.getElementById("addRequestBtn").disabled = false;
+            document.getElementById("addAggregationBtn").disabled = false;
+            document.getElementById("clearAggregationBtn").disabled = false;
+            $("#addAggregationBtn").trigger("click");
+            appendAggSubTable();
+            onComputeClick();
+        }
+        else
+        {
+            onComputeClick();
+        }
+
+    }
+    function onFormatChange(sel)
+    {
+        onComputeClick();
+    }
+</script>
+</body>
+</html>
